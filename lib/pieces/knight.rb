@@ -8,7 +8,7 @@ class Knight < Piece
   ]
   
   def initialize(color)
-    @color = color
+    super(color)
   end
 
   def get_moves(current_position, board)
