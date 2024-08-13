@@ -4,6 +4,10 @@ class Pawn
     @color = color
   end
 
+  def get_color
+    @color  
+  end
+  
   def to_s
     return 'wp' if @color == 'white'
     return 'bp' if @color == 'black'

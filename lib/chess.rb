@@ -12,19 +12,51 @@ class Chess
   end
 
   def play
+    set_up_board
     player_number = 1
     loop do
       puts "Player #{player_number} choose the piece you want to move:"
+      show_board
+      position = player_choose_piece(player_number)
 
-
+      
 
       player_number = player_number == 1 ? 2 : 1
     end
     puts 'Tie!'
   end
+
+  def player_choose_piece(player_number)
+    loop do
+      position = gets.chomp
+      piece = get_item_on_board(position)
+      if piece.nil?
+        puts 'There is no piece in this location! Try again!'
+      elsif player_piece?(player_number, piece)
+        return position
+      else
+        puts 'This is not your piece! Try again!'
+      end
+    end
+  end
+  
+  def player_piece?(player_number, piece)
+    (player_number == 1 && piece.get_color == "white") ||
+    (player_number == 2 && piece.get_color == "black")
+  end
+  
+
+  def get_item_on_board(position) #position is made up of a letter a-h and a number 0-7
+    indexes = position.split("")
+
+    x_axis = indexes[0].downcase.ord - 'a'.ord
+    y_axis = indexes[1].to_i
+
+    return @board[x_axis][y_axis] if x_axis.between?(0, 7) && y_axis.between?(0, 7)
+    nil
+  end
   
   def set_up_board
-    
     0.upto(7) do |col_index|
       @board[6][col_index] = Pawn.new('black')
     end
