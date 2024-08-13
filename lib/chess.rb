@@ -9,8 +9,18 @@ class Chess
   
   def initialize
     @board = Array.new(8) { Array.new(8) }
+  end
 
-    set_up_board
+  def play
+    player_number = 1
+    loop do
+      puts "Player #{player_number} choose the piece you want to move:"
+
+
+
+      player_number = player_number == 1 ? 2 : 1
+    end
+    puts 'Tie!'
   end
   
   def set_up_board
@@ -57,9 +67,10 @@ class Chess
         # value = col_index
         row = row.concat(value.to_s, ' ')
       end
-      puts row
+      puts row_index.to_s + " |" + row
     end
-    puts ''
+    puts '   -----------------------'
+    puts '   a  b  c  d  e  f  g  h '
   end
 
 end
