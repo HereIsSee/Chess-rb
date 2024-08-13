@@ -1,3 +1,4 @@
+require_relative 'piece'
 class Bishop < Piece
   def initialize(color)
     super(color)
@@ -17,15 +18,15 @@ class Bishop < Piece
   def get_moves(current_position, board)
     moves = []
 
-    collect_moves_in_direction(current_position, 1, 1, moves)
-    collect_moves_in_direction(current_position, -1, 1, moves)
-    collect_moves_in_direction(current_position, 1, -1, moves)
-    collect_moves_in_direction(current_position, -1, -1, moves)
+    collect_moves_in_direction(current_position, 1, 1, moves, board)
+    collect_moves_in_direction(current_position, -1, 1, moves, board)
+    collect_moves_in_direction(current_position, 1, -1, moves, board)
+    collect_moves_in_direction(current_position, -1, -1, moves, board)
 
     moves
   end
 
-  def collect_moves_in_direction(current_position ,x_axis, y_axisk, moves)
+  def collect_moves_in_direction(current_position ,x_axis, y_axis, moves, board)
     loop do
       new_x = current_position[0] + x_axis # here
       new_y = current_position[1] + y_axis # and here
@@ -34,6 +35,7 @@ class Bishop < Piece
 
       if is_within_board(new_x, new_y) && board[new_x][new_y] == ''
         moves << new_position
+        current_position = new_position
       elsif is_within_board(new_x, new_y) && enemy_piece?(board[new_x][new_y])
         moves << new_position
         break

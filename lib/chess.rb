@@ -6,7 +6,7 @@ require_relative 'pieces/queen'
 require_relative 'pieces/rook'
 
 class Chess
-  
+  attr_reader :board
   def initialize
     @board = Array.new(8) { Array.new(8) }
   end
