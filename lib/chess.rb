@@ -21,9 +21,7 @@ class Chess
       coordinates = player_choose_piece(player_number)
 
       position = cordinates_to_array_position(coordinates)
-      p get_item_on_board(coordinates) #.get_moves(position)
-      
-      board_to_string_array()
+      p get_item_on_board(coordinates).get_moves(position, board_to_string_array())
 
 
       player_number = player_number == 1 ? 2 : 1
@@ -118,15 +116,13 @@ class Chess
   end
 
   def board_to_string_array
-    new_thing = @board.map do |row|
+    @board.map do |row|
       new_row = []
       0.upto(7) do |col_index|
         new_row.push(row[col_index].to_s)
       end
       new_row
     end
-
-    p new_thing
   end
 
 end
