@@ -1,6 +1,8 @@
-class Rook
+require_relative 'piece'
+
+class Rook < Piece
   def initialize(color)
-    @color = color
+    super(color)
   end
 
   def get_color
