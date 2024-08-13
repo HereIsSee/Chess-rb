@@ -53,7 +53,7 @@ class Chess
     7.downto(0) do |row_index|
       row = ''
       0.upto(7) do |col_index|
-        value = @board[col_index][row_index] || '--'
+        value = @board[row_index][col_index] || '--'
         # value = col_index
         row = row.concat(value.to_s, ' ')
       end
