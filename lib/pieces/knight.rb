@@ -4,7 +4,7 @@ class Knight
   end
 
   def get_color
-    @color  
+    @color
   end
   
   def to_s

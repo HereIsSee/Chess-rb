@@ -4,6 +4,10 @@ class Pawn
     @color = color
   end
 
+  def get_moves(position)
+
+  end
+
   def get_color
     @color  
   end
