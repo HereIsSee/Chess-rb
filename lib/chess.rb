@@ -21,7 +21,7 @@ class Chess
       coordinates = player_choose_piece(player_number)
 
       position = cordinates_to_array_position(coordinates)
-      p get_item_on_board(coordinates).get_moves(position, board_to_string_array())
+      p get_piece_on_board(coordinates).get_moves(position, board_to_string_array())
 
 
       player_number = player_number == 1 ? 2 : 1
@@ -32,7 +32,7 @@ class Chess
   def player_choose_piece(player_number)
     loop do
       position = gets.chomp
-      piece = get_item_on_board(position)
+      piece = get_piece_on_board(position)
       if piece.nil?
         puts 'There is no piece in this location! Try again!'
       elsif player_piece?(player_number, piece)
@@ -52,12 +52,17 @@ class Chess
   
   
 
-  def get_item_on_board(cordinates) #position is made up of a letter a-h and a number 0-7
-    
+  def get_piece_on_board(cordinates) #position is made up of a letter a-h and a number 0-7
     position = cordinates_to_array_position(cordinates)
-    # p position
+
     return @board[position[0]][position[1]] if position[0].between?(0, 7) && position[1].between?(0, 7)
     nil
+  end
+
+  def place_piece_on_board(cordinates, piece) #position is made up of a letter a-h and a number 0-7
+    position = cordinates_to_array_position(cordinates)
+
+    @board[position[0]][position[1]] = piece if position[0].between?(0, 7) && position[1].between?(0, 7)
   end
   
   def cordinates_to_array_position(cordinates)

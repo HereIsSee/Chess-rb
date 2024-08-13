@@ -1,19 +1,21 @@
-class Pawn
+require_relative 'piece'
+
+class Pawn < Piece
   
   WHITE_PAWN_MOVES = [
-    [0, 2], # If has not moved from starting position
-    [0,1],
+    [0, 2], # If pawn has not moved from starting position
+    [0,1], # Normal move
     [1,1], [-1,1] # Attack moves
   ]
   BLACK_PAWN_MOVES = [
-    [0, -2], # If has not moved from starting position
-    [0, -1],
+    [0, -2], # If pawn has not moved from starting position
+    [0, -1], # Normal move
     [1, -1], [-1, -1] # Attack moves
   ]
   
 
   def initialize(color)
-    @color = color
+    super(color)
   end
 
   def get_color
@@ -29,12 +31,7 @@ class Pawn
 
   def get_moves(current_position, board)
     moves = []
-    # If pawn has not moved from starting position
-    # he can move 2 spaces, otherwise one to the
-    # front according to it's color.
-    # If the path is blocked then he can only move 
-    # one or no moves. 
-    # If there is 
+
     pawn_moves = @color == 'white' ? WHITE_PAWN_MOVES : BLACK_PAWN_MOVES
     start_row = @color == 'white' ? 1 : 6
     
@@ -70,16 +67,5 @@ class Pawn
     if is_within_board(new_x, new_y) && enemy_piece?(board[new_x][new_y])
       moves << [new_x, new_y]
     end
-  end
-
-  def is_within_board(x, y)
-    x.between?(0, 7) && y.between?(0, 7)
-  end
-
-  def enemy_piece?(piece)
-    return false if piece == ''
-    piece_color = piece.split('')
-    piece_color = piece_color[0] == 'w' ? 'white' : 'black'
-    piece_color != @color
   end
 end
