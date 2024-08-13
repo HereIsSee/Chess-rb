@@ -14,4 +14,11 @@ class Piece
     piece_color = piece_color[0] == 'w' ? 'white' : 'black'
     piece_color != @color
   end
+
+  def friendly_piece?(piece)
+    return false if piece == ''
+    piece_color = piece.split('')
+    piece_color = piece_color[0] == 'w' ? 'white' : 'black'
+    piece_color == @color
+  end
 end
