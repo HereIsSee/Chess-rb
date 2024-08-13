@@ -20,7 +20,7 @@ class Knight < Piece
       
       new_position = [new_x, new_y]
       
-      moves << new_position if is_within_board(new_x, new_y) && !friendly_piece?
+      moves << new_position if is_within_board(new_x, new_y) && !friendly_piece?(board[new_x][new_y])
     end
 
     moves
