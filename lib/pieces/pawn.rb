@@ -17,10 +17,6 @@ class Pawn < Piece
   def initialize(color)
     super(color)
   end
-
-  def get_color
-    @color  
-  end
   
   def to_s
     return 'wp' if @color == 'white'

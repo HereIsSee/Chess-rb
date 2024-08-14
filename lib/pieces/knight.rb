@@ -25,10 +25,6 @@ class Knight < Piece
 
     moves
   end
-
-  def get_color
-    @color
-  end
   
   def to_s
     return 'wn' if @color == 'white'

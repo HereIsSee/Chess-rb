@@ -4,6 +4,10 @@ class Piece
     @color = color
   end
 
+  def get_color
+    @color  
+  end
+  
   def is_within_board(x, y)
     x.between?(0, 7) && y.between?(0, 7)
   end

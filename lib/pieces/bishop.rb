@@ -3,10 +3,6 @@ class Bishop < Piece
   def initialize(color)
     super(color)
   end
-
-  def get_color
-    @color  
-  end
   
   def to_s
     return 'wb' if @color == 'white'
