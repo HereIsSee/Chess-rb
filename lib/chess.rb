@@ -17,8 +17,8 @@ require_relative 'pieces/rook'
 
 class Chess
   attr_reader :board
-  def initialize
-    @board = Array.new(8) { Array.new(8) }
+  def initialize(board = Array.new(8) { Array.new(8) })
+    @board = board
   end
 
   def play
@@ -36,23 +36,25 @@ class Chess
   end
 
   def player_make_move(player_number)
+    team_color = player_number == 1 ? 'white' : 'black'
+    puts "You are in check!" if in_check?(get_king_position(team_color))
+    
     loop do
       coordinates = gets.chomp
       position = coordintates_to_array_position(coordinates)
       piece = get_piece_on_board(position)
 
-      next unless piece_can_be_played?(player_number, piece, position)
-
       moves = piece.get_moves(position, board_to_string_array())
-
-      # Filtering out moves that would cause to check your king
-      filtered_moves = filter_moves_for_check(player_number, position, piece, moves)
-      puts available_moves_to_s(filtered_moves)
+      filtered_moves = filter_moves_for_check(team_color, position, piece, moves)
+      
+      next unless piece_can_be_played?(team_color, piece, position, filtered_moves)
+      
+      puts available_moves_to_s(moves) + " all moves"
 
       puts 'Choose move, or go back by writing "back"'
-      puts available_moves_to_s(moves) + ", back"
+      puts available_moves_to_s(filtered_moves) + ", back"
 
-      chosen_move_position = choose_move(moves)
+      chosen_move_position = choose_move(filtered_moves)
 
       if chosen_move_position == 'back'
         puts "You went back! Choose piece to play."
@@ -65,25 +67,16 @@ class Chess
     end
   end
   
-  def filter_moves_for_check(player_number, position, piece, moves)
-    player_color = player_number == 1 ? 'white' : 'black'
-    enemy_moves = collect_enemy_attack_moves(player_color)
-
-    if piece.is_a?(King) 
-      moves.map { |move| move if !enemy_moves.include?(move) }.compact
-    else # every other piece
-      # will need to update this so that it removes moves that would make king be placed in check
-      moves
-    end
-    
+  def filter_moves_for_check(team_color, position, piece, moves)
+    moves.map { |move| move unless move_puts_king_in_check?(team_color, piece, position, move) }.compact
   end
 
-  def collect_enemy_attack_moves(player_color)
+  def collect_enemy_attack_moves(team_color)
     moves = []
     
     0.upto(7) do |row_index|
       0.upto(7) do |col_index|
-        attack_moves = potential_threats_from_position(row_index, col_index, player_color)
+        attack_moves = potential_threats_from_position(row_index, col_index, team_color)
         moves.concat( attack_moves ) if !attack_moves.nil?
       end
     end
@@ -91,8 +84,8 @@ class Chess
     moves.uniq
   end
 
-  def potential_threats_from_position(row_index, col_index, player_color)
-    if !@board[row_index][col_index].nil? && @board[row_index][col_index].get_color != player_color
+  def potential_threats_from_position(row_index, col_index, team_color)
+    if !@board[row_index][col_index].nil? && @board[row_index][col_index].get_color != team_color
       
       if @board[row_index][col_index].is_a?(Pawn)
         @board[row_index][col_index].get_attack_moves( [row_index, col_index] )
@@ -125,19 +118,28 @@ class Chess
     moves.map { |move| array_position_to_coordinates(move)}.join(', ')
   end
 
-  def piece_can_be_played?(player_number, piece, position)
+  def piece_can_be_played?(team_color, piece, position, filtered_moves)
     if piece.nil?
       puts 'There is no piece in this location! Try again!'
       false
-    elsif !player_piece?(player_number, piece)
+    elsif !player_piece?(team_color, piece)
       puts 'This is not your piece! Try again!'
       false
-    elsif player_piece?(player_number, piece) && piece.get_moves(position, board_to_string_array()).count == 0
+    elsif player_piece?(team_color, piece) && filtered_moves.count == 0
       puts 'This piece has no available moves, try a different one!'
       false
     else
       true
     end
+  end
+
+  def move_puts_king_in_check?(team_color, piece, position, move)
+    simulation_board = Chess.new(@board.map(&:dup))
+
+    simulation_board.execute_move(position, move, piece)
+
+    simulation_board.in_check?(simulation_board.get_king_position(team_color))
+
   end
 
   def in_check?(king_position)
@@ -160,9 +162,9 @@ class Chess
     end
   end
 
-  def player_piece?(player_number, piece)
-    (player_number == 1 && piece.get_color == "white") || 
-    (player_number == 2 && piece.get_color == "black")
+  def player_piece?(team_color, piece)
+    (piece.get_color == team_color) || 
+    (piece.get_color == team_color)
   end
   
   def get_piece_on_board(position) # position is an array of x and y elements
