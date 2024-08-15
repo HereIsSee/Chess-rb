@@ -137,10 +137,23 @@ class Chess
   
   def execute_move(starting_position, move, piece)
     piece.enable_en_passant if piece.is_a?(Pawn) && (starting_position[1]-move[1]).abs == 2
-      
+
+    if is_an_en_passant_move?(move, piece)
+      @board[move[0]][move[1]-1] = nil if piece.get_color == 'white'
+      @board[move[0]][move[1]+1] = nil if piece.get_color == 'black'
+    end
+    
     @board[starting_position[0]][starting_position[1]] = nil
 
     @board[move[0]][move[1]] = piece
+  end
+
+  def is_an_en_passant_move?(move, piece)
+    color = piece.get_color
+    return true if color == 'white' && @board[move[0]][move[1]-1].is_a?(Pawn) && @board[move[0]][move[1]-1].en_passant
+    return true if color == 'black' && @board[move[0]][move[1]+1].is_a?(Pawn) && @board[move[0]][move[1]+1].en_passant
+
+    false
   end
 
   def choose_move(moves)
