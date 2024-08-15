@@ -1,7 +1,8 @@
 class Piece
-  
+  attr_accessor :moved
   def initialize(color)
     @color = color
+    @moved = false
   end
 
   def get_color

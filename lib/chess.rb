@@ -6,8 +6,6 @@ require_relative 'pieces/queen'
 require_relative 'pieces/rook'
 
 # Left to do:
-# 4. Add stale mate DONE
-# 5. Add en passant DONEEEEEE
 # 6. Add castling
 
 
@@ -136,6 +134,7 @@ class Chess
   end
   
   def execute_move(starting_position, move, piece)
+    piece.moved = true
     piece.enable_en_passant if piece.is_a?(Pawn) && (starting_position[1]-move[1]).abs == 2
 
     if is_an_en_passant_move?(move, piece)
@@ -193,7 +192,6 @@ class Chess
     simulation_board.execute_move(position, move, piece)
 
     simulation_board.in_check?(simulation_board.get_king_position(team_color))
-
   end
 
   def in_check?(king_position)
@@ -285,22 +283,22 @@ class Chess
     @board[0][7] = Rook.new('black')
     @board[7][7] = Rook.new('black')
 
-    @board[1][0] = Knight.new('white')
-    @board[6][0] = Knight.new('white')
+    # @board[1][0] = Knight.new('white')
+    # @board[6][0] = Knight.new('white')
 
-    @board[1][7] = Knight.new('black')
-    @board[6][7] = Knight.new('black')
+    # @board[1][7] = Knight.new('black')
+    # @board[6][7] = Knight.new('black')
 
-    @board[2][0] = Bishop.new('white')
-    @board[5][0] = Bishop.new('white')
+    # @board[2][0] = Bishop.new('white')
+    # @board[5][0] = Bishop.new('white')
 
-    @board[2][7] = Bishop.new('black')
-    @board[5][7] = Bishop.new('black')
+    # @board[2][7] = Bishop.new('black')
+    # @board[5][7] = Bishop.new('black')
 
-    @board[3][0] = Queen.new('white')
+    # @board[3][0] = Queen.new('white')
     @board[4][0] = King.new('white')
 
-    @board[3][7] = Queen.new('black')
+    # @board[3][7] = Queen.new('black')
     @board[4][7] = King.new('black')
   end
 
