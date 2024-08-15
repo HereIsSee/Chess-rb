@@ -5,6 +5,16 @@ require_relative 'pieces/knight'
 require_relative 'pieces/queen'
 require_relative 'pieces/rook'
 
+# Left to do:
+# 1. Add restriction on king moves depending if the square is being # DOING
+# attacked by enemy piece
+# 2. Add checking
+# 3. Add mating
+# 4. Add restriction on all current player pieces that if moved would
+# make current player king be in check
+# 5. Add en passant
+
+
 class Chess
   attr_reader :board
   def initialize
@@ -37,6 +47,10 @@ class Chess
 
       moves = piece.get_moves(position, board_to_string_array())
 
+      # Filtering out moves that would cause to check your king
+      # filtered_moves = filter_moves_for_check(player_number, position, piece, moves)
+      # puts available_moves_to_s(filtered_moves)
+
       puts 'Choose move, or go back by writing "back"'
       puts available_moves_to_s(moves) + ", back"
 
@@ -46,11 +60,39 @@ class Chess
         puts "You went back! Choose piece to play."
         next
       end
-      
+
       execute_move(position, chosen_move_position, piece)
       
       return
     end
+  end
+  
+  def filter_moves_for_check(player_number, position, piece, moves)
+    player_color = player_number == 1 ? 'white' : 'black'
+    enemy_moves = collect_enemy_moves(player_color)
+
+    if piece.is_a?(King) 
+      moves.map { |move| move if !enemy_moves.include?(move) }.compact
+    else # every other piece
+      # will need to update this so that it removes moves that would make king be placed in check
+      moves
+    end
+    
+  end
+
+  def collect_enemy_moves(player_color)
+    # Update so that it collects pawn attack moves, and does not collect pawn moving forward moves
+
+    moves = []
+    0.upto(7) do |row_index|
+      0.upto(7) do |col_index|
+        if !@board[row_index][col_index].nil? && @board[row_index][col_index].get_color != player_color
+          moves.concat(@board[row_index][col_index].get_moves( [row_index, col_index], board_to_string_array ))
+        end
+      end
+    end
+
+    moves.uniq
   end
   
   def execute_move(starting_position, move, piece)
@@ -72,7 +114,7 @@ class Chess
   end
 
   def available_moves_to_s(moves)
-    moves.map { |move| array_position_to_coordinates(move) }.join(', ')
+    moves.map { |move| array_position_to_coordinates(move)}.join(', ')
   end
 
   def piece_can_be_played?(player_number, piece, position)
