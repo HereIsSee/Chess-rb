@@ -8,9 +8,10 @@ require_relative 'pieces/rook'
 # Left to do:
 # 1. Add restriction on king moves depending if the square is being # DONE
 # attacked by enemy piece
-# 2. Add checking
-# 3. Add mating
-# 4. Add restriction on all current player pieces that if moved would
+# 2. Add checking # DONE
+# 3. Add mating # IN PROGRESS
+# 4. Add stale mate
+# 4. Add restriction on all current player pieces that if moved would # DONE
 # make current player king be in check
 # 5. Add en passant
 
@@ -24,13 +25,23 @@ class Chess
   def play
     set_up_board
     player_number = 1
+    team_color = 'white'
+    opposite_team_color = 'black'
     loop do
+      puts "Current team: #{team_color} Enemy team: #{opposite_team_color}"
       puts "Player #{player_number} choose the piece you want to move:"
       show_board
 
       player_make_move(player_number)
 
+      if checkmate?(get_king_position(opposite_team_color))
+        puts "Player #{player_number} wins!"
+        return
+      end
+
       player_number = player_number == 1 ? 2 : 1
+      team_color = player_number == 1 ? 'white' : 'black'
+      opposite_team_color = player_number == 1 ? 'black' : 'white'
     end
     puts 'Tie!'
   end
@@ -49,7 +60,7 @@ class Chess
       
       next unless piece_can_be_played?(team_color, piece, position, filtered_moves)
       
-      puts available_moves_to_s(moves) + " all moves"
+      # puts available_moves_to_s(moves) + " all moves"
 
       puts 'Choose move, or go back by writing "back"'
       puts available_moves_to_s(filtered_moves) + ", back"
@@ -78,6 +89,22 @@ class Chess
       0.upto(7) do |col_index|
         attack_moves = potential_threats_from_position(row_index, col_index, team_color)
         moves.concat( attack_moves ) if !attack_moves.nil?
+      end
+    end
+
+    moves.uniq
+  end
+
+  def collect_all_friendly_moves(team_color)
+    moves = []
+    
+    0.upto(7) do |row_index|
+      0.upto(7) do |col_index|
+        if  !@board[row_index][col_index].nil? && @board[row_index][col_index].get_color == team_color
+          all_moves = @board[row_index][col_index].get_moves([row_index, col_index], board_to_string_array())
+          filtered_moves = filter_moves_for_check(team_color, [row_index, col_index], @board[row_index][col_index], all_moves)
+          moves.concat( filtered_moves ) unless filtered_moves.nil?
+        end
       end
     end
 
@@ -148,6 +175,20 @@ class Chess
     team_color = @board[king_position[0]][king_position[1]].get_color
 
     return true if collect_enemy_attack_moves(team_color).include?(king_position)
+    
+    false
+  end
+
+  def checkmate?(king_position)
+    return false unless @board[king_position[0]][king_position[1]].is_a?(King)
+      
+    team_color = @board[king_position[0]][king_position[1]].get_color
+
+    moves = collect_all_friendly_moves(team_color)
+
+    if moves.count == 0 && in_check?(get_king_position(team_color))
+      return true
+    end
     
     false
   end
