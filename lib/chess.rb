@@ -7,7 +7,7 @@ require_relative 'pieces/rook'
 
 # Left to do:
 # 4. Add stale mate DONE
-# 5. Add en passant
+# 5. Add en passant DONEEEEEE
 # 6. Add castling
 
 

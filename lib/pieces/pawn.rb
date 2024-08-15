@@ -42,7 +42,11 @@ class Pawn < Piece
     
     # Check if the pawn is in the starting position
     if current_position[1] == start_row
-      add_move_if_valid(current_position, pawn_moves[0], board, moves)
+      if @color == 'white' && board[current_position[0]][current_position[1]+1].nil?
+        add_move_if_valid(current_position, pawn_moves[0], board, moves)
+      elsif @color == 'black' && board[current_position[0]][current_position[1]-1].nil?
+        add_move_if_valid(current_position, pawn_moves[0], board, moves)
+      end
     end
 
     # Normal forward move
