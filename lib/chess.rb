@@ -6,7 +6,7 @@ require_relative 'pieces/queen'
 require_relative 'pieces/rook'
 
 # Left to do:
-# 1. Add restriction on king moves depending if the square is being # DOING
+# 1. Add restriction on king moves depending if the square is being # DONE
 # attacked by enemy piece
 # 2. Add checking
 # 3. Add mating
@@ -40,10 +40,8 @@ class Chess
       coordinates = gets.chomp
       position = coordintates_to_array_position(coordinates)
       piece = get_piece_on_board(position)
-      
-      flag = piece_can_be_played?(player_number, piece, position)
 
-      next if !flag
+      next unless piece_can_be_played?(player_number, piece, position)
 
       moves = piece.get_moves(position, board_to_string_array())
 
@@ -139,6 +137,26 @@ class Chess
       false
     else
       true
+    end
+  end
+
+  def in_check?(king_position)
+    return false unless @board[king_position[0]][king_position[1]].is_a?(King)
+      
+    team_color = @board[king_position[0]][king_position[1]].get_color
+
+    return true if collect_enemy_attack_moves(team_color).include?(king_position)
+    
+    false
+  end
+
+  def get_king_position(color)
+    0.upto(7) do |row_index|
+      0.upto(7) do |col_index|
+        if @board[row_index][col_index].is_a?(King) && @board[row_index][col_index].get_color == color
+          return [row_index, col_index]
+        end
+      end
     end
   end
 
