@@ -6,14 +6,9 @@ require_relative 'pieces/queen'
 require_relative 'pieces/rook'
 
 # Left to do:
-# 1. Add restriction on king moves depending if the square is being # DONE
-# attacked by enemy piece
-# 2. Add checking # DONE
-# 3. Add mating # IN PROGRESS
 # 4. Add stale mate
-# 4. Add restriction on all current player pieces that if moved would # DONE
-# make current player king be in check
 # 5. Add en passant
+# 6. Add castling
 
 
 class Chess
@@ -38,7 +33,10 @@ class Chess
         puts "Player #{player_number} wins!"
         return
       end
-
+      if stalemate?(get_king_position(opposite_team_color))
+        puts "Stalemate!"
+        return
+      end
       player_number = player_number == 1 ? 2 : 1
       team_color = player_number == 1 ? 'white' : 'black'
       opposite_team_color = player_number == 1 ? 'black' : 'white'
@@ -187,6 +185,20 @@ class Chess
     moves = collect_all_friendly_moves(team_color)
 
     if moves.count == 0 && in_check?(get_king_position(team_color))
+      return true
+    end
+    
+    false
+  end
+
+  def stalemate?(king_position)
+    return false unless @board[king_position[0]][king_position[1]].is_a?(King)
+      
+    team_color = @board[king_position[0]][king_position[1]].get_color
+
+    moves = collect_all_friendly_moves(team_color)
+
+    if moves.count == 0 && !in_check?(get_king_position(team_color))
       return true
     end
     
