@@ -1,7 +1,7 @@
 require_relative 'piece'
 
 class Pawn < Piece
-  
+  attr_reader :en_passant
   WHITE_PAWN_MOVES = [
     [0, 2], # If pawn has not moved from starting position
     [0,1], # Normal move
@@ -31,7 +31,7 @@ class Pawn < Piece
   end
 
   def disable_en_passant
-    @en_passant = true
+    @en_passant = false
   end
 
   def get_moves(current_position, board)
@@ -87,6 +87,20 @@ class Pawn < Piece
     new_y = current_position[1] + move[1]
     if is_within_board(new_x, new_y) && enemy_piece?(board[new_x][new_y])
       moves << [new_x, new_y]
+    elsif en_passant_possible?(current_position, board, move[0])
+      moves << [new_x, new_y]
     end
+  end
+
+  def en_passant_possible?(current_position, board, x_direction)
+    enemy_pawn_position = [current_position[0]+x_direction, current_position[1]]
+
+    is_an_enemy_pawn?(enemy_pawn_position, board) &&
+    board[enemy_pawn_position[0]][enemy_pawn_position[1]].en_passant
+  end
+
+  def is_an_enemy_pawn?(position, board)
+    is_within_board(position[0], position[1]) && !board[position[0]][position[1]].nil? &&
+    board[position[0]][position[1]].is_a?(Pawn) && enemy_piece?(board[position[0]][position[1]])
   end
 end

@@ -37,6 +37,9 @@ class Chess
         puts "Stalemate!"
         return
       end
+
+      remove_en_passant(opposite_team_color)
+
       player_number = player_number == 1 ? 2 : 1
       team_color = player_number == 1 ? 'white' : 'black'
       opposite_team_color = player_number == 1 ? 'black' : 'white'
@@ -109,6 +112,17 @@ class Chess
     moves.uniq
   end
 
+  def remove_en_passant(team_color)
+    0.upto(7) do |row_index|
+      0.upto(7) do |col_index|
+        piece = @board[row_index][col_index]
+        if !piece.nil? && piece.is_a?(Pawn) && piece.get_color == team_color
+          @board[row_index][col_index].disable_en_passant
+        end
+      end
+    end
+  end
+
   def potential_threats_from_position(row_index, col_index, team_color)
     if !@board[row_index][col_index].nil? && @board[row_index][col_index].get_color != team_color
       
@@ -122,6 +136,8 @@ class Chess
   end
   
   def execute_move(starting_position, move, piece)
+    piece.enable_en_passant if piece.is_a?(Pawn) && (starting_position[1]-move[1]).abs == 2
+      
     @board[starting_position[0]][starting_position[1]] = nil
 
     @board[move[0]][move[1]] = piece
