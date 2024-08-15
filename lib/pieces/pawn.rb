@@ -46,6 +46,22 @@ class Pawn < Piece
 
     moves
   end
+
+  def get_attack_moves(current_position)
+    moves = []
+
+    pawn_moves = @color == 'white' ? WHITE_PAWN_MOVES : BLACK_PAWN_MOVES
+
+    [pawn_moves[2], pawn_moves[3]].each do |move|
+      new_x = current_position[0] + move[0]
+      new_y = current_position[1] + move[1]
+      if is_within_board(new_x, new_y)
+        moves << [new_x, new_y]
+      end
+    end
+
+    moves
+  end
   
   private
 

@@ -48,8 +48,8 @@ class Chess
       moves = piece.get_moves(position, board_to_string_array())
 
       # Filtering out moves that would cause to check your king
-      # filtered_moves = filter_moves_for_check(player_number, position, piece, moves)
-      # puts available_moves_to_s(filtered_moves)
+      filtered_moves = filter_moves_for_check(player_number, position, piece, moves)
+      puts available_moves_to_s(filtered_moves)
 
       puts 'Choose move, or go back by writing "back"'
       puts available_moves_to_s(moves) + ", back"
@@ -69,7 +69,7 @@ class Chess
   
   def filter_moves_for_check(player_number, position, piece, moves)
     player_color = player_number == 1 ? 'white' : 'black'
-    enemy_moves = collect_enemy_moves(player_color)
+    enemy_moves = collect_enemy_attack_moves(player_color)
 
     if piece.is_a?(King) 
       moves.map { |move| move if !enemy_moves.include?(move) }.compact
@@ -80,19 +80,29 @@ class Chess
     
   end
 
-  def collect_enemy_moves(player_color)
-    # Update so that it collects pawn attack moves, and does not collect pawn moving forward moves
-
+  def collect_enemy_attack_moves(player_color)
     moves = []
+    
     0.upto(7) do |row_index|
       0.upto(7) do |col_index|
-        if !@board[row_index][col_index].nil? && @board[row_index][col_index].get_color != player_color
-          moves.concat(@board[row_index][col_index].get_moves( [row_index, col_index], board_to_string_array ))
-        end
+        attack_moves = potential_threats_from_position(row_index, col_index, player_color)
+        moves.concat( attack_moves ) if !attack_moves.nil?
       end
     end
 
     moves.uniq
+  end
+
+  def potential_threats_from_position(row_index, col_index, player_color)
+    if !@board[row_index][col_index].nil? && @board[row_index][col_index].get_color != player_color
+      
+      if @board[row_index][col_index].is_a?(Pawn)
+        @board[row_index][col_index].get_attack_moves( [row_index, col_index] )
+      else
+        @board[row_index][col_index].get_moves( [row_index, col_index], board_to_string_array )
+      end
+    
+    end
   end
   
   def execute_move(starting_position, move, piece)
