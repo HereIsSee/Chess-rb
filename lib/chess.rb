@@ -6,7 +6,7 @@ require_relative 'pieces/queen'
 require_relative 'pieces/rook'
 
 # Left to do:
-# 4. Add stale mate
+# 4. Add stale mate DONE
 # 5. Add en passant
 # 6. Add castling
 
@@ -53,7 +53,7 @@ class Chess
       position = coordintates_to_array_position(coordinates)
       piece = get_piece_on_board(position)
 
-      moves = piece.get_moves(position, board_to_string_array())
+      moves = piece.get_moves(position, @board)
       filtered_moves = filter_moves_for_check(team_color, position, piece, moves)
       
       next unless piece_can_be_played?(team_color, piece, position, filtered_moves)
@@ -99,7 +99,7 @@ class Chess
     0.upto(7) do |row_index|
       0.upto(7) do |col_index|
         if  !@board[row_index][col_index].nil? && @board[row_index][col_index].get_color == team_color
-          all_moves = @board[row_index][col_index].get_moves([row_index, col_index], board_to_string_array())
+          all_moves = @board[row_index][col_index].get_moves([row_index, col_index], @board)
           filtered_moves = filter_moves_for_check(team_color, [row_index, col_index], @board[row_index][col_index], all_moves)
           moves.concat( filtered_moves ) unless filtered_moves.nil?
         end
@@ -115,7 +115,7 @@ class Chess
       if @board[row_index][col_index].is_a?(Pawn)
         @board[row_index][col_index].get_attack_moves( [row_index, col_index] )
       else
-        @board[row_index][col_index].get_moves( [row_index, col_index], board_to_string_array )
+        @board[row_index][col_index].get_moves( [row_index, col_index], @board )
       end
     
     end
@@ -288,16 +288,6 @@ class Chess
     end
     puts '   -----------------------'
     puts '   a  b  c  d  e  f  g  h '
-  end
-
-  def board_to_string_array
-    @board.map do |row|
-      new_row = []
-      0.upto(7) do |col_index|
-        new_row.push(row[col_index].to_s)
-      end
-      new_row
-    end
   end
 
 end

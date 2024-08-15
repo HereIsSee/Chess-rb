@@ -16,6 +16,7 @@ class Pawn < Piece
 
   def initialize(color)
     super(color)
+    @en_passant = false
   end
   
   def to_s
@@ -23,6 +24,14 @@ class Pawn < Piece
     return 'bp' if @color == 'black'
     
     'error'
+  end
+
+  def enable_en_passant
+    @en_passant = true
+  end
+
+  def disable_en_passant
+    @en_passant = true
   end
 
   def get_moves(current_position, board)
@@ -68,7 +77,7 @@ class Pawn < Piece
   def add_move_if_valid(current_position, move, board, moves)
     new_x = current_position[0] + move[0]
     new_y = current_position[1] + move[1]
-    if is_within_board(new_x, new_y) && board[new_x][new_y] == ''
+    if is_within_board(new_x, new_y) && board[new_x][new_y].nil?
       moves << [new_x, new_y]
     end
   end

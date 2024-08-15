@@ -20,7 +20,6 @@ class King < Piece
     'error'
   end
 
-  # add checking for if new move makes the king move into the enemy line of fire
   def get_moves(current_position, board)
     moves = []
 

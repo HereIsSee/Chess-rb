@@ -13,17 +13,15 @@ class Piece
   end
 
   def enemy_piece?(piece)
-    return false if piece == ''
-    piece_color = piece.split('')
-    piece_color = piece_color[0] == 'w' ? 'white' : 'black'
-    piece_color != @color
+    return false if piece.nil?
+
+    piece.get_color != @color
   end
 
   def friendly_piece?(piece)
-    return false if piece == ''
-    piece_color = piece.split('')
-    piece_color = piece_color[0] == 'w' ? 'white' : 'black'
-    piece_color == @color
+    return false if piece.nil?
+
+    piece.get_color == @color
   end
 
   def collect_moves_in_direction(current_position ,x_axis, y_axis, moves, board)
@@ -33,7 +31,7 @@ class Piece
 
       new_position = [new_x, new_y]
 
-      if is_within_board(new_x, new_y) && board[new_x][new_y] == ''
+      if is_within_board(new_x, new_y) && board[new_x][new_y].nil?
         moves << new_position
         current_position = new_position
       elsif is_within_board(new_x, new_y) && enemy_piece?(board[new_x][new_y])
