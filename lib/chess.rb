@@ -37,11 +37,16 @@ class Chess
 
       moves = piece.get_moves(position, board_to_string_array())
 
-      puts 'Choose move'
-      display_available_moves(moves)
+      puts 'Choose move, or go back by writing "back"'
+      puts available_moves_to_s(moves) + ", back"
 
       chosen_move_position = choose_move(moves)
 
+      if chosen_move_position == 'back'
+        puts "You went back! Choose piece to play."
+        next
+      end
+      
       execute_move(position, chosen_move_position, piece)
       
       return
@@ -61,12 +66,13 @@ class Chess
       chosen_move = gets.chomp
 
       return coordintates_to_array_position(chosen_move) if move_coordinates.include?(chosen_move)
+      return 'back' if chosen_move == 'back'
       puts 'Wrong input! Try again!'
     end
   end
 
-  def display_available_moves(moves)
-    puts moves.map { |move| array_position_to_coordinates(move) }.join(', ')
+  def available_moves_to_s(moves)
+    moves.map { |move| array_position_to_coordinates(move) }.join(', ')
   end
 
   def piece_can_be_played?(player_number, piece, position)
