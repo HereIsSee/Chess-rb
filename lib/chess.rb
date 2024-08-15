@@ -18,57 +18,96 @@ class Chess
       puts "Player #{player_number} choose the piece you want to move:"
       show_board
 
-      coordinates = player_choose_piece(player_number)
-
-      position = cordinates_to_array_position(coordinates)
-      p get_piece_on_board(coordinates).get_moves(position, board_to_string_array())
-
+      player_make_move(player_number)
 
       player_number = player_number == 1 ? 2 : 1
     end
     puts 'Tie!'
   end
 
-  def player_choose_piece(player_number)
+  def player_make_move(player_number)
     loop do
-      position = gets.chomp
+      coordinates = gets.chomp
+      position = coordintates_to_array_position(coordinates)
       piece = get_piece_on_board(position)
-      if piece.nil?
-        puts 'There is no piece in this location! Try again!'
-      elsif player_piece?(player_number, piece)
-        return position
-      else
-        puts player_number
-        puts 'This is not your piece! Try again!'
-      end
+      
+      flag = piece_can_be_played?(player_number, piece, position)
+
+      next if !flag
+
+      moves = piece.get_moves(position, board_to_string_array())
+
+      puts 'Choose move'
+      display_available_moves(moves)
+
+      chosen_move_position = choose_move(moves)
+
+      execute_move(position, chosen_move_position, piece)
+      
+      return
     end
   end
   
+  def execute_move(starting_position, move, piece)
+    @board[starting_position[0]][starting_position[1]] = nil
+
+    @board[move[0]][move[1]] = piece
+  end
+
+  def choose_move(moves)
+    move_coordinates = moves.map { |move| array_position_to_coordinates(move) }
+    
+    loop do
+      chosen_move = gets.chomp
+
+      return coordintates_to_array_position(chosen_move) if move_coordinates.include?(chosen_move)
+      puts 'Wrong input! Try again!'
+    end
+  end
+
+  def display_available_moves(moves)
+    puts moves.map { |move| array_position_to_coordinates(move) }.join(', ')
+  end
+
+  def piece_can_be_played?(player_number, piece, position)
+    if piece.nil?
+      puts 'There is no piece in this location! Try again!'
+      false
+    elsif !player_piece?(player_number, piece)
+      puts 'This is not your piece! Try again!'
+      false
+    elsif player_piece?(player_number, piece) && piece.get_moves(position, board_to_string_array()).count == 0
+      puts 'This piece has no available moves, try a different one!'
+      false
+    else
+      true
+    end
+  end
+
   def player_piece?(player_number, piece)
     (player_number == 1 && piece.get_color == "white") || 
     (player_number == 2 && piece.get_color == "black")
-    
   end
   
-  
-
-  def get_piece_on_board(cordinates) #position is made up of a letter a-h and a number 0-7
-    position = cordinates_to_array_position(cordinates)
-
+  def get_piece_on_board(position) # position is an array of x and y elements
     return @board[position[0]][position[1]] if position[0].between?(0, 7) && position[1].between?(0, 7)
     nil
   end
 
   def place_piece_on_board(cordinates, piece) #position is made up of a letter a-h and a number 0-7
-    position = cordinates_to_array_position(cordinates)
+    position = coordintates_to_array_position(cordinates)
 
     @board[position[0]][position[1]] = piece if position[0].between?(0, 7) && position[1].between?(0, 7)
   end
   
-  def cordinates_to_array_position(cordinates)
+  def coordintates_to_array_position(cordinates)
     indexes = cordinates.split("")
     
     [indexes[0].downcase.ord - 'a'.ord, indexes[1].to_i]
+  end
+
+  def array_position_to_coordinates(position)
+    (position[0] + 'a'.ord).chr + position[1].to_s
   end
 
   def set_up_board
