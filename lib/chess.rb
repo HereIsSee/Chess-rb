@@ -6,7 +6,9 @@ require_relative 'pieces/queen'
 require_relative 'pieces/rook'
 require 'json'
 
-# Write some test for the important methods
+# Write some test for the important methods:
+#   Write test for each piece class
+#   Write test
 
 
 class Chess
@@ -402,6 +404,13 @@ class Chess
     @board[4][7] = King.new('black')
   end
 
+  def remove_all_pieces_except(*args)
+    0.upto(7) do |row_index|
+      0.upto(7) do |col_index|
+        @board[row_index][col_index] = nil if !args.include?([row_index, col_index])
+      end
+    end
+  end
 
   def show_board
     7.downto(0) do |y_index|
