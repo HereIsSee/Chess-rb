@@ -38,20 +38,23 @@ class King < Piece
     moves
   end
 
-  def castling_available?(king_position, rook_position, board)
-    spaces_that_need_to_be_empty = (king_position[0] - rook_position[0]) > 0 ? [1, 2, 3] : [5, 6]
+  def castling_available?(king_position, rook_position, board, enemy_attack_positions)
+    empty_squares = (king_position[0] - rook_position[0]) > 0 ? [1, 2, 3] : [5, 6]
+    safe_squares = (king_position[0] - rook_position[0]) > 0 ? [2, 3] : [5, 6]
     y_position = @color == 'white' ? 0 : 7
 
-    spaces_that_need_to_be_empty.all? { |x_position| board[x_position][y_position].nil?} &&
+    empty_squares.all? { |x_position| board[x_position][y_position].nil?} &&
+    safe_squares.all? { |x_position| !enemy_attack_positions.include?([x_position, y_position]) } &&
     !board[king_position[0]][king_position[1]].moved &&
     !board[rook_position[0]][rook_position[1]].moved
   end
 
-  def get_castling_moves(king_position, board, moves)
+  def get_castling_moves(king_position, board, moves, enemy_attack_positions)
     row_to_check = @color == 'white' ? 0 : 7
     
     [[0, row_to_check], [7, row_to_check]].each do |possible_rook_position|
-      if board[possible_rook_position[0]][possible_rook_position[1]].is_a?(Rook) && castling_available?(king_position, possible_rook_position, board)
+      if board[possible_rook_position[0]][possible_rook_position[1]].is_a?(Rook) &&
+        castling_available?(king_position, possible_rook_position, board, enemy_attack_positions)
 
         direction = (king_position[0] - possible_rook_position[0]) > 0 ? 0 : 1
 

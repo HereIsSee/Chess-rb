@@ -5,9 +5,6 @@ require_relative 'pieces/knight'
 require_relative 'pieces/queen'
 require_relative 'pieces/rook'
 
-# Left to do:
-# 6. Add castling
-
 
 class Chess
   attr_reader :board
@@ -55,7 +52,7 @@ class Chess
       piece = get_piece_on_board(position)
 
       moves = piece.get_moves(position, @board)
-      piece.get_castling_moves(position, @board, moves) if piece.is_a?(King)
+      piece.get_castling_moves(position, @board, moves, collect_enemy_attack_moves(team_color)) if piece.is_a?(King)
       filtered_moves = filter_moves_for_check(team_color, position, piece, moves)
       
       next unless piece_can_be_played?(team_color, piece, position, filtered_moves)
@@ -298,22 +295,22 @@ class Chess
     @board[0][7] = Rook.new('black')
     @board[7][7] = Rook.new('black')
 
-    # @board[1][0] = Knight.new('white')
-    # @board[6][0] = Knight.new('white')
+    @board[1][0] = Knight.new('white')
+    @board[6][0] = Knight.new('white')
 
-    # @board[1][7] = Knight.new('black')
-    # @board[6][7] = Knight.new('black')
+    @board[1][7] = Knight.new('black')
+    @board[6][7] = Knight.new('black')
 
-    # @board[2][0] = Bishop.new('white')
-    # @board[5][0] = Bishop.new('white')
+    @board[2][0] = Bishop.new('white')
+    @board[5][0] = Bishop.new('white')
 
-    # @board[2][7] = Bishop.new('black')
-    # @board[5][7] = Bishop.new('black')
+    @board[2][7] = Bishop.new('black')
+    @board[5][7] = Bishop.new('black')
 
-    # @board[3][0] = Queen.new('white')
+    @board[3][0] = Queen.new('white')
     @board[4][0] = King.new('white')
 
-    # @board[3][7] = Queen.new('black')
+    @board[3][7] = Queen.new('black')
     @board[4][7] = King.new('black')
   end
 
