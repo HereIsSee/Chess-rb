@@ -55,11 +55,10 @@ class Chess
       piece = get_piece_on_board(position)
 
       moves = piece.get_moves(position, @board)
+      piece.get_castling_moves(position, @board, moves) if piece.is_a?(King)
       filtered_moves = filter_moves_for_check(team_color, position, piece, moves)
       
       next unless piece_can_be_played?(team_color, piece, position, filtered_moves)
-      
-      # puts available_moves_to_s(moves) + " all moves"
 
       puts 'Choose move, or go back by writing "back"'
       puts available_moves_to_s(filtered_moves) + ", back"
@@ -71,7 +70,7 @@ class Chess
         next
       end
 
-      execute_move(position, chosen_move_position, piece)
+      execute_move(position, chosen_move_position, piece, true)
       
       return
     end
@@ -133,13 +132,23 @@ class Chess
     end
   end
   
-  def execute_move(starting_position, move, piece)
-    piece.moved = true
+  def execute_move(starting_position, move, piece, change_moved_state = false)
+    piece.moved = true if change_moved_state
     piece.enable_en_passant if piece.is_a?(Pawn) && (starting_position[1]-move[1]).abs == 2
 
     if is_an_en_passant_move?(move, piece)
       @board[move[0]][move[1]-1] = nil if piece.get_color == 'white'
       @board[move[0]][move[1]+1] = nil if piece.get_color == 'black'
+    end
+
+    if is_a_castling_move?(starting_position, move, piece)
+      rook_y_position = starting_position[1]
+      rook_x_position = starting_position[0]-move[0] > 0 ? 0 : 7
+      
+      @board[rook_x_position+3][rook_y_position] = @board[rook_x_position][rook_y_position] if rook_x_position == 0 
+      @board[rook_x_position-2][rook_y_position] = @board[rook_x_position][rook_y_position] if rook_x_position == 7
+
+      @board[rook_x_position][rook_y_position] = nil
     end
     
     @board[starting_position[0]][starting_position[1]] = nil
@@ -151,6 +160,12 @@ class Chess
     color = piece.get_color
     return true if color == 'white' && @board[move[0]][move[1]-1].is_a?(Pawn) && @board[move[0]][move[1]-1].en_passant
     return true if color == 'black' && @board[move[0]][move[1]+1].is_a?(Pawn) && @board[move[0]][move[1]+1].en_passant
+
+    false
+  end
+
+  def is_a_castling_move?(starting_position, end_position, piece)
+    return true if piece.is_a?(King) && (starting_position[0]-end_position[0]).abs == 2
 
     false
   end

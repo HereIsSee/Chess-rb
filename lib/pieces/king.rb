@@ -11,9 +11,6 @@ class King < Piece
   KING_CASTLING_MOVES = [
     [-2, 0], [2, 0]
   ]
-  ROOK_CASTLING_MOVES = [
-    [3, 0], [-2, 0],
-  ]
   
   def initialize(color)
     super(color)
@@ -38,8 +35,6 @@ class King < Piece
       moves << new_position if is_within_board(new_x, new_y) && !friendly_piece?(board[new_x][new_y])
     end
 
-    get_castling_moves(current_position, board, moves)
-    
     moves
   end
 
@@ -56,8 +51,7 @@ class King < Piece
     row_to_check = @color == 'white' ? 0 : 7
     
     [[0, row_to_check], [7, row_to_check]].each do |possible_rook_position|
-      if board[possible_rook_position[0]][possible_rook_position[1]].is_a?(Rook) &&
-        castling_available?(king_position, possible_rook_position, board)
+      if board[possible_rook_position[0]][possible_rook_position[1]].is_a?(Rook) && castling_available?(king_position, possible_rook_position, board)
 
         direction = (king_position[0] - possible_rook_position[0]) > 0 ? 0 : 1
 
@@ -67,7 +61,6 @@ class King < Piece
         new_position = [new_x, new_y]
 
         if is_within_board(new_x, new_y) && !friendly_piece?(board[new_x][new_y])
-          puts "Move was put in!"
           moves << new_position 
         end
       end
