@@ -6,10 +6,7 @@ require_relative 'pieces/queen'
 require_relative 'pieces/rook'
 require 'json'
 
-# Add promotion
 # Write some test for the important methods
-# Make a simple AI
-# Make the code more readable and more modulised
 
 
 class Chess
@@ -27,13 +24,23 @@ class Chess
     puts "If you want to load a previously saved game type (yes/y)"
     anwser = gets.chomp
     load_game() if anwser== 'yes' || anwser== 'y'
+
+    puts "Type 'ai' if you want to play against a robot"
+    anwser = gets.chomp
+    @ai_enabled = true if anwser == 'ai'
+
     loop do
+
       puts "Current team: #{@current_team_color} Enemy team: #{@opposite_team_color}"
       puts "Team #{@current_team_color} choose the piece you want to move or save and leave the game by writing 'save':"
       show_board
 
-      return if player_make_move == 'game_saved'
-
+      if @ai_enabled && @current_team_color == 'black'
+        ai_make_move
+      else
+        return if player_make_move == 'game_saved'
+      end
+      
       if checkmate?(get_king_position(@opposite_team_color))
         puts "#{@current_team_color} team wins!"
         return
@@ -65,9 +72,7 @@ class Chess
       position = coordintates_to_array_position(coordinates)
       piece = get_piece_on_board(position)
 
-      moves = piece.get_moves(position, @board)
-      piece.get_castling_moves(position, @board, moves, collect_enemy_attack_moves(team_color)) if piece.is_a?(King)
-      filtered_moves = filter_moves_for_check(team_color, position, piece, moves)
+      filtered_moves = generate_legal_moves(piece, position, team_color)
       
       next unless piece_can_be_played?(team_color, piece, position, filtered_moves)
 
@@ -86,7 +91,48 @@ class Chess
       return
     end
   end
+
+  def ai_make_move
+    # Gather available pieces that can be moved and their positions
+    # Choose at random a piece that can be moved
+    # Choose at random a move that the piece will make
+    # Execute that move
+    color = @current_team_color
+    movable_piece_positions = collect_movable_pieces_positions(color)
+    
+    p chosen_piece_position = movable_piece_positions[Random.rand(0..(movable_piece_positions.count - 1))]
+
+    p moves = generate_legal_moves(@board[chosen_piece_position[0]][chosen_piece_position[1]], chosen_piece_position, color)
+
+    p chosen_move = moves[Random.rand(0..(moves.count - 1))]
+
+    execute_move(chosen_piece_position, chosen_move, @board[chosen_piece_position[0]][chosen_piece_position[1]], true)
+  end
+
+    
+  def generate_legal_moves(piece, position, team_color)
+    moves = piece.get_moves(position, @board)
+    piece.get_castling_moves(position, @board, moves, collect_enemy_attack_moves(team_color)) if piece.is_a?(King)
+    
+    filter_moves_for_check(team_color, position, piece, moves)
+  end
   
+  def collect_movable_pieces_positions(color)
+    movable_piece_positions = []
+    
+    0.upto(7) do |row_index|
+      0.upto(7) do |col_index|
+        piece = @board[row_index][col_index]
+        position = [row_index, col_index]
+        if !piece.nil? &&  piece.get_color == color && generate_legal_moves(piece, position, color).count > 0
+          movable_piece_positions << position
+        end
+      end
+    end
+
+    movable_piece_positions
+  end
+
   def filter_moves_for_check(team_color, position, piece, moves)
     moves.map { |move| move unless move_puts_king_in_check?(team_color, piece, position, move) }.compact
   end
@@ -174,8 +220,8 @@ class Chess
 
   def is_an_en_passant_move?(move, piece)
     color = piece.get_color
-    return true if color == 'white' && @board[move[0]][move[1]-1].is_a?(Pawn) && @board[move[0]][move[1]-1].en_passant
-    return true if color == 'black' && @board[move[0]][move[1]+1].is_a?(Pawn) && @board[move[0]][move[1]+1].en_passant
+    return true if piece.is_a?(Pawn) && color == 'white' && @board[move[0]][move[1]-1].is_a?(Pawn) && @board[move[0]][move[1]-1].en_passant
+    return true if piece.is_a?(Pawn) && color == 'black' && @board[move[0]][move[1]+1].is_a?(Pawn) && @board[move[0]][move[1]+1].en_passant
 
     false
   end
@@ -320,9 +366,7 @@ class Chess
     (position[0] + 'a'.ord).chr + position[1].to_s
   end
 
-  def chess_AI()
-    
-  end
+  
 
   def set_up_board
     0.upto(7) do |col_index|
@@ -388,7 +432,8 @@ class Chess
     JSON.dump({
                 board: @board,
                 current_team_color: @current_team_color,
-                opposite_team_color: @opposite_team_color
+                opposite_team_color: @opposite_team_color,
+                ai_enabled: @ai_enabled
               })
   end
 
@@ -405,6 +450,7 @@ class Chess
     end
     @current_team_color = data['current_team_color']
     @opposite_team_color = data['opposite_team_color']
+    @ai_enabled = data['ai_enabled']
   end
 
 end
