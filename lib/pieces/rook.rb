@@ -2,8 +2,8 @@ require_relative 'piece'
 
 class Rook < Piece
   
-  def initialize(color)
-    super(color)
+  def initialize(color, moved = false)
+    super(color, moved)
   end
 
   def to_s

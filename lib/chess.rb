@@ -4,50 +4,62 @@ require_relative 'pieces/king'
 require_relative 'pieces/knight'
 require_relative 'pieces/queen'
 require_relative 'pieces/rook'
+require 'json'
+
+# Write some test for the important methods
+# Make saving and loading the game posiible
+# Make a simple AI
 
 
 class Chess
   attr_reader :board
   def initialize(board = Array.new(8) { Array.new(8) })
     @board = board
+    @current_team_color = 'white'
+    @opposite_team_color = 'black'
   end
 
   def play
     set_up_board
-    player_number = 1
-    team_color = 'white'
-    opposite_team_color = 'black'
+
+    puts "If you want to load a previously saved game type (yes/y)"
+    anwser = gets.chomp
+    load_game() if anwser== 'yes' || anwser== 'y'
     loop do
-      puts "Current team: #{team_color} Enemy team: #{opposite_team_color}"
-      puts "Player #{player_number} choose the piece you want to move:"
+      puts "Current team: #{@current_team_color} Enemy team: #{@opposite_team_color}"
+      puts "Team #{@current_team_color} choose the piece you want to move or save and leave the game by writing 'save':"
       show_board
 
-      player_make_move(player_number)
+      return if player_make_move == 'game_saved'
 
-      if checkmate?(get_king_position(opposite_team_color))
-        puts "Player #{player_number} wins!"
+      if checkmate?(get_king_position(@opposite_team_color))
+        puts "#{@current_team_color} team wins!"
         return
       end
-      if stalemate?(get_king_position(opposite_team_color))
+      if stalemate?(get_king_position(@opposite_team_color))
         puts "Stalemate!"
         return
       end
 
-      remove_en_passant(opposite_team_color)
+      remove_en_passant(@opposite_team_color)
 
-      player_number = player_number == 1 ? 2 : 1
-      team_color = player_number == 1 ? 'white' : 'black'
-      opposite_team_color = player_number == 1 ? 'black' : 'white'
+      @current_team_color = @current_team_color == 'white' ? 'black' : 'white' 
+      @opposite_team_color = @current_team_color == 'white' ? 'black' : 'white'
     end
     puts 'Tie!'
   end
 
-  def player_make_move(player_number)
-    team_color = player_number == 1 ? 'white' : 'black'
+  def player_make_move
+    team_color = @current_team_color
     puts "You are in check!" if in_check?(get_king_position(team_color))
     
     loop do
       coordinates = gets.chomp
+      if coordinates == 'save'
+        save
+        return 'game_saved'
+      end
+
       position = coordintates_to_array_position(coordinates)
       piece = get_piece_on_board(position)
 
@@ -327,6 +339,40 @@ class Chess
     end
     puts '   -----------------------'
     puts '   a  b  c  d  e  f  g  h '
+  end
+
+  def load_game
+    return puts 'No data saved previously!' if !File.exist?('save') || File.zero?('save')
+
+    file_content = File.read('save')
+    from_json(file_content)
+  end
+
+  def save
+    File.write('save', to_json)
+  end
+
+  def to_json(*_args)
+    JSON.dump({
+                board: @board,
+                current_team_color: @current_team_color,
+                opposite_team_color: @opposite_team_color
+              })
+  end
+
+  def from_json(string)
+    data = JSON.parse string
+    @board = data['board'].map do |row|
+      row.map do |piece_data|
+        if piece_data.nil?
+          nil
+        else
+          Object.const_get(piece_data['type']).from_json(piece_data) # line 370
+        end
+      end
+    end
+    @current_team_color = data['current_team_color']
+    @opposite_team_color = data['opposite_team_color']
   end
 
 end

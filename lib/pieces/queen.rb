@@ -1,8 +1,8 @@
 require_relative 'piece'
 
 class Queen < Piece
-  def initialize(color)
-    @color = color
+  def initialize(color, moved = false)
+    super(color, moved)
   end
   
   def to_s

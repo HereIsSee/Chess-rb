@@ -12,8 +12,8 @@ class King < Piece
     [-2, 0], [2, 0]
   ]
   
-  def initialize(color)
-    super(color)
+  def initialize(color, moved = false)
+    super(color, moved)
   end
   
   def to_s

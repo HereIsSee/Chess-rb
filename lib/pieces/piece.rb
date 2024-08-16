@@ -1,8 +1,20 @@
 class Piece
   attr_accessor :moved
-  def initialize(color)
+  def initialize(color, moved = false)
     @color = color
-    @moved = false
+    @moved = moved
+  end
+
+  def to_json(*_args)
+    {
+      'type' => self.class.name,
+      'color' => @color,
+      'moved' => @moved
+    }.to_json
+  end
+
+  def self.from_json(data)
+    new(data['color'], data['moved'])
   end
 
   def get_color

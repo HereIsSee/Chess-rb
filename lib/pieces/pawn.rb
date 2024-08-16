@@ -13,12 +13,23 @@ class Pawn < Piece
     [1, -1], [-1, -1] # Attack moves
   ]
   
-
-  def initialize(color)
-    super(color)
-    @en_passant = false
+  def initialize(color, moved = false, en_passant = false)
+    super(color, moved)
+    @en_passant = en_passant
   end
-  
+
+  def to_json(*_args)
+    {
+      'type' => self.class.name,
+      'color' => @color,
+      'moved' => @moved,
+      'en_passant' => @en_passant
+    }.to_json
+  end
+
+  def self.from_json(data)
+    new(data['color'], data['moved'], data['en_passant'])
+  end
   def to_s
     return 'wp' if @color == 'white'
     return 'bp' if @color == 'black'

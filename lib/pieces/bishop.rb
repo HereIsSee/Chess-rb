@@ -1,7 +1,7 @@
 require_relative 'piece'
 class Bishop < Piece
-  def initialize(color)
-    super(color)
+  def initialize(color, moved = false)
+    super(color, moved)
   end
   
   def to_s
