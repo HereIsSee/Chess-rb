@@ -6,9 +6,10 @@ require_relative 'pieces/queen'
 require_relative 'pieces/rook'
 require 'json'
 
+# Add promotion
 # Write some test for the important methods
-# Make saving and loading the game posiible
 # Make a simple AI
+# Make the code more readable and more modulised
 
 
 class Chess
@@ -17,6 +18,7 @@ class Chess
     @board = board
     @current_team_color = 'white'
     @opposite_team_color = 'black'
+    @ai_enabled = false
   end
 
   def play
@@ -141,13 +143,18 @@ class Chess
     end
   end
   
-  def execute_move(starting_position, move, piece, change_moved_state = false)
-    piece.moved = true if change_moved_state
+  def execute_move(starting_position, move, piece, not_simulation = false)
+    piece.moved = true if not_simulation
     piece.enable_en_passant if piece.is_a?(Pawn) && (starting_position[1]-move[1]).abs == 2
 
     if is_an_en_passant_move?(move, piece)
       @board[move[0]][move[1]-1] = nil if piece.get_color == 'white'
       @board[move[0]][move[1]+1] = nil if piece.get_color == 'black'
+    end
+
+
+    if not_simulation && piece.is_a?(Pawn) && piece.promotion?(move)
+      piece = choose_promotion_piece(piece.get_color)
     end
 
     if is_a_castling_move?(starting_position, move, piece)
@@ -177,6 +184,27 @@ class Chess
     return true if piece.is_a?(King) && (starting_position[0]-end_position[0]).abs == 2
 
     false
+  end
+
+  def choose_promotion_piece(color)
+    loop do
+      puts "Choose a promotion piece:"
+      puts "queen, rook, knight, bishop"
+      decision = gets.chomp
+
+      case decision
+      when 'queen'
+        return Queen.new(color, true)
+      when 'rook'
+        return Rook.new(color, true)
+      when 'knight'
+        return Knight.new(color, true)
+      when 'bishop'
+        return Bishop.new(color, true)
+      else
+        puts "Wrong input! Try again!"
+      end
+    end
   end
 
   def choose_move(moves)
@@ -290,6 +318,10 @@ class Chess
 
   def array_position_to_coordinates(position)
     (position[0] + 'a'.ord).chr + position[1].to_s
+  end
+
+  def chess_AI()
+    
   end
 
   def set_up_board

@@ -45,6 +45,13 @@ class Pawn < Piece
     @en_passant = false
   end
 
+  def promotion?(position)
+    return true if @color == 'white' && position[1] == 7
+    return true if @color == 'black' && position[1] == 0
+
+    false
+  end
+
   def get_moves(current_position, board)
     moves = []
 
